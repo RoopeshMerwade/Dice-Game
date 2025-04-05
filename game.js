@@ -1,4 +1,4 @@
-import confetti from "canvas-confetti";
+// import confetti from "canvas-confetti";
 
 const ActivePlayerBg1 = document.querySelector(".player--0");
 const ActivePlayerBg2 = document.querySelector(".player--1");
@@ -148,15 +148,20 @@ function showWinningAnimation(playerNumber) {
     colors: ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff"],
   });
 
-  // Remove popup after 3 seconds
+  // Automatically reset game after 5 seconds
   setTimeout(() => {
+    // Remove popup and overlay
     overlay.remove();
     popup.remove();
-  }, 3000);
+
+    // Reset game (reuse existing NewGameBtn click logic)
+    NewGameBtn.click();
+  }, 5000);
 }
 
 // In your existing game logic where you determine the winner:
-if (PlayerSwitch[ActivePlayer] >= 100) {
+if (PlayerSwitch[ActivePlayer] >= 50) {
+  Playing = false;
   showWinningAnimation(ActivePlayer + 1);
   // ... rest of your winning logic
 }
