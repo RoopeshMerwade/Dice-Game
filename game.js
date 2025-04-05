@@ -149,6 +149,11 @@ function showWinningAnimation(playerNumber) {
 
   const popup = document.createElement("div");
   popup.className = "winner-popup";
+  if (playerNumber === 1) {
+    popup.innerHTML = `<h2>Player 1 Wins! 🎉</h2>`;
+  } else {
+    popup.innerHTML = `<h2>AI Wins! 🤖🎉</h2>`;
+  }
   popup.innerHTML = `<h2>Player ${playerNumber} Wins! 🎉</h2>`;
 
   document.body.appendChild(overlay);
