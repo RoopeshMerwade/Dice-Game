@@ -1,5 +1,5 @@
 # Dice Game
-[Live Demo](#)
+[ http://roopeshmerwade.github.io/Dice-Game/](#)
 
 This is a simple Dice Game project created as part of a Udemy course. The project demonstrates basic programming concepts and serves as a fun way to practice coding skills.
 
