@@ -1,3 +1,5 @@
+import confetti from "canvas-confetti";
+
 const ActivePlayerBg1 = document.querySelector(".player--0");
 const ActivePlayerBg2 = document.querySelector(".player--1");
 
