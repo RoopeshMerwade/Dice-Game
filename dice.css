@@ -318,6 +318,57 @@ body {
   .hold {
     bottom: 10%;
   }
+
+  .left-bottom h1,
+  .right-bottom h1 {
+    font-size: 1.2rem; /* Reduce 'Current' text size */
+    margin-bottom: 5px;
+  }
+
+  .left-bottom .dice-score,
+  .right-bottom .dice-score {
+    font-size: 1.5rem; /* Reduce points size */
+  }
+
+  .player-score {
+    font-size: 2rem; /* Reduce total score size */
+    margin: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .left-bottom h1,
+  .right-bottom h1 {
+    font-size: 1rem; /* Further reduce 'Current' text for smaller screens */
+  }
+
+  .left-bottom .dice-score,
+  .right-bottom .dice-score {
+    font-size: 1.2rem; /* Further reduce points for smaller screens */
+  }
+
+  .player-score {
+    font-size: 1.8rem; /* Further reduce total score for smaller screens */
+    margin: 0.8rem;
+  }
+}
+
+/* For very small devices */
+@media (max-width: 320px) {
+  .left-bottom h1,
+  .right-bottom h1 {
+    font-size: 0.9rem;
+  }
+
+  .left-bottom .dice-score,
+  .right-bottom .dice-score {
+    font-size: 1rem;
+  }
+
+  .player-score {
+    font-size: 1.5rem;
+    margin: 0.5rem;
+  }
 }
 
 .winner-popup {
@@ -362,6 +413,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
   z-index: 999;
 }
