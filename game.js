@@ -28,6 +28,9 @@ let ActivePlayer = 0;
 let CurrentScore = 0;
 let Playing = true;
 
+let isComputerPlayer = true;
+let isComputerTurn = false;
+
 //switch player
 const switchPlayers = function () {
   CurrentScore = 0;
@@ -35,11 +38,17 @@ const switchPlayers = function () {
   ActivePlayer = ActivePlayer === 0 ? 1 : 0;
   ActivePlayerBg1.classList.toggle("active-player");
   ActivePlayerBg2.classList.toggle("active-player");
+
+  // Add computer player logic
+  if (isComputerPlayer && ActivePlayer === 1 && Playing) {
+    isComputerTurn = true;
+    setTimeout(computerPlay, 1000);
+  }
 };
 
 // Dice Roll Button
 DiceRollBtn.addEventListener("click", function () {
-  if (Playing) {
+  if (Playing && !isComputerTurn) {
     Dice.classList.remove("hidden");
     let DiceRollValue = Math.floor(Math.random() * 6) + 1;
     console.log(DiceRollValue);
@@ -74,11 +83,16 @@ NewGameBtn.addEventListener("click", function () {
   ActivePlayerBg2.classList.remove("active-player");
   ActivePlayerBg1.classList.remove("active-player");
   ActivePlayerBg1.classList.add("active-player");
+  isComputerTurn = false;
   Playing = true;
+
+  // Update player labels
+  document.querySelector("#player-0").textContent = "Player";
+  document.querySelector("#player-1").textContent = "Computer";
 });
 
 HoldDiceBtn.addEventListener("click", function () {
-  if (Playing) {
+  if (Playing && !isComputerTurn) {
     PlayerSwitch[ActivePlayer] += CurrentScore;
     document.getElementById(`scoreofplayer${ActivePlayer}`).textContent =
       PlayerSwitch[ActivePlayer];
@@ -157,6 +171,88 @@ function showWinningAnimation(playerNumber) {
     // Reset game (reuse existing NewGameBtn click logic)
     NewGameBtn.click();
   }, 5000);
+}
+
+// Add computer player function
+function computerPlay() {
+  if (!Playing || !isComputerTurn) return;
+
+  function calculateRiskFactor() {
+    const computerScore = PlayerSwitch[1];
+    const playerScore = PlayerSwitch[0];
+    const scoreDiff = playerScore - computerScore;
+    const pointsToWin = 50 - computerScore;
+
+    // Dynamic strategy based on game state
+    if (playerScore >= 45) return 30; // Very aggressive if player is about to win
+    if (pointsToWin <= 15) return 10; // Conservative when close to winning
+    if (scoreDiff > 15) return 25; // Aggressive when falling behind
+    if (computerScore > playerScore) {
+      // Adaptive when leading
+      return Math.min(20, pointsToWin); // Don't overreach
+    }
+    return 20; // Default balanced approach
+  }
+
+  function shouldContinueRolling() {
+    const targetScore = calculateRiskFactor();
+    const winningMove = PlayerSwitch[1] + CurrentScore >= 50;
+    const riskFactor = Math.min(CurrentScore / targetScore, 1);
+
+    // Special cases
+    if (winningMove) return false; // Hold if we can win
+    if (CurrentScore <= 8) return true; // Always roll at least twice
+
+    // Risk assessment
+    const safetyThreshold = 0.7 - PlayerSwitch[0] / 100; // Adjust risk based on player's score
+    return riskFactor < safetyThreshold;
+  }
+
+  function rollDice() {
+    if (!Playing) return;
+
+    Dice.classList.remove("hidden");
+    const DiceRollValue = Math.floor(Math.random() * 6) + 1;
+    Dice.src = `dice-${DiceRollValue}.png`;
+
+    if (DiceRollValue !== 1) {
+      CurrentScore += DiceRollValue;
+      document.getElementById(`partialscore--${ActivePlayer}`).textContent =
+        CurrentScore;
+
+      // Decision making
+      if (shouldContinueRolling()) {
+        setTimeout(rollDice, 800); // Faster rolls for better gameplay
+      } else {
+        setTimeout(() => {
+          // Hold points
+          PlayerSwitch[ActivePlayer] += CurrentScore;
+          document.getElementById(`scoreofplayer${ActivePlayer}`).textContent =
+            PlayerSwitch[ActivePlayer];
+
+          if (PlayerSwitch[ActivePlayer] >= 50) {
+            Playing = false;
+            document
+              .querySelector(`.player--${ActivePlayer}`)
+              .classList.add("player-winner1");
+            ActivePlayerBg1.classList.remove("active-player");
+            ActivePlayerBg2.classList.remove("active-player");
+            showWinningAnimation(ActivePlayer + 1);
+          } else {
+            switchPlayers();
+          }
+          isComputerTurn = false;
+        }, 1000);
+      }
+    } else {
+      setTimeout(() => {
+        switchPlayers();
+        isComputerTurn = false;
+      }, 1000);
+    }
+  }
+
+  setTimeout(rollDice, 1000);
 }
 
 // In your existing game logic where you determine the winner:
