@@ -87,13 +87,19 @@ body {
 .left-bottom,
 .right-bottom {
   width: 45%;
-  background-color: #fcee21;
+  background: linear-gradient(
+    145deg,
+    rgba(52, 152, 219, 0.9),
+    rgba(41, 128, 185, 0.75)
+  );
   border-radius: 10px;
   margin: auto;
-  /* overflow: hidden; */
-  /* flex-wrap: wrap; */
   text-align: center;
   font-family: "Vollkorn", serif;
+  color: white;
+  padding: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .left-bottom .dice-score,
@@ -101,6 +107,8 @@ body {
   font-size: 35px;
   font-family: "Poppins", sans-serif;
   font-weight: bold;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .left-top,
@@ -226,7 +234,7 @@ body {
 .active-player {
   background: linear-gradient(
     145deg,
-    rgba(41, 152, 255, 0.6),
+    rgba(1, 75, 144, 0.6),
     rgba(0, 102, 255, 0.4)
   );
   border-radius: 15px;

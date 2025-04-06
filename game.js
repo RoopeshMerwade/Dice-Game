@@ -88,7 +88,7 @@ NewGameBtn.addEventListener("click", function () {
 
   // Update player labels
   document.querySelector("#player-0").textContent = "Player";
-  document.querySelector("#player-1").textContent = "Computer";
+  document.querySelector("#player-1").textContent = "AI";
 });
 
 HoldDiceBtn.addEventListener("click", function () {
