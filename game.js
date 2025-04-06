@@ -199,25 +199,28 @@ function computerPlay() {
   }
 
   function shouldContinueRolling() {
-    const targetScore = calculateRiskFactor();
     const computerScore = PlayerSwitch[1];
     const playerScore = PlayerSwitch[0];
     const winningMove = computerScore + CurrentScore >= 50;
     const scoreDiff = playerScore - computerScore;
-    const riskFactor = Math.min(CurrentScore / targetScore, 1);
 
-    const hasMomentum = CurrentScore >= 12; // Momentum: keep rolling if hot streak
-    const isFarBehind = scoreDiff > 20;
-    const denyOpponentWin = playerScore >= 45 && computerScore < 40;
+    // Force holding in these cases
+    if (winningMove) return false; // Hold if we can win
+    if (CurrentScore >= 20) return false; // Cap at 20 points per turn
+    if (computerScore + CurrentScore >= 45) return false; // Hold when close to winning
 
-    if (winningMove) return false; // Always hold to win
-    if (CurrentScore <= 8) return true; // Minimum 2 rolls
-    if (isFarBehind) return true; // Catch-up risk
-    if (hasMomentum) return true; // Continue on streak
-    if (denyOpponentWin && CurrentScore >= 10) return false; // Stop, bank points
+    // Risk assessment - more conservative
+    if (CurrentScore <= 5) return true; // Always roll at least twice
 
-    const safetyThreshold = 0.6 - playerScore / 120; // Slightly more aggressive overall
-    return riskFactor < safetyThreshold;
+    // Standard risk cases
+    const baseThreshold = 12; // Base target score
+    const adjustedTarget = baseThreshold + (scoreDiff > 10 ? 4 : 0); // More aggressive if behind
+
+    // Conservative when ahead, aggressive when behind
+    if (computerScore > playerScore && CurrentScore >= 10) return false;
+    if (scoreDiff > 15 && CurrentScore < 15) return true;
+
+    return CurrentScore < adjustedTarget;
   }
 
   function rollDice() {
