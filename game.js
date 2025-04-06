@@ -154,7 +154,6 @@ function showWinningAnimation(playerNumber) {
   } else {
     popup.innerHTML = `<h2>AI Wins! 🤖🎉</h2>`;
   }
-  popup.innerHTML = `<h2>Player ${playerNumber} Wins! 🎉</h2>`;
 
   document.body.appendChild(overlay);
   document.body.appendChild(popup);
@@ -201,15 +200,23 @@ function computerPlay() {
 
   function shouldContinueRolling() {
     const targetScore = calculateRiskFactor();
-    const winningMove = PlayerSwitch[1] + CurrentScore >= 50;
+    const computerScore = PlayerSwitch[1];
+    const playerScore = PlayerSwitch[0];
+    const winningMove = computerScore + CurrentScore >= 50;
+    const scoreDiff = playerScore - computerScore;
     const riskFactor = Math.min(CurrentScore / targetScore, 1);
 
-    // Special cases
-    if (winningMove) return false; // Hold if we can win
-    if (CurrentScore <= 8) return true; // Always roll at least twice
+    const hasMomentum = CurrentScore >= 12; // Momentum: keep rolling if hot streak
+    const isFarBehind = scoreDiff > 20;
+    const denyOpponentWin = playerScore >= 45 && computerScore < 40;
 
-    // Risk assessment
-    const safetyThreshold = 0.7 - PlayerSwitch[0] / 100; // Adjust risk based on player's score
+    if (winningMove) return false; // Always hold to win
+    if (CurrentScore <= 8) return true; // Minimum 2 rolls
+    if (isFarBehind) return true; // Catch-up risk
+    if (hasMomentum) return true; // Continue on streak
+    if (denyOpponentWin && CurrentScore >= 10) return false; // Stop, bank points
+
+    const safetyThreshold = 0.6 - playerScore / 120; // Slightly more aggressive overall
     return riskFactor < safetyThreshold;
   }
 
