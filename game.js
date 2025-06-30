@@ -114,6 +114,14 @@ style.textContent = `
 document.head.appendChild(style);
 document.body.appendChild(difficultyContainer);
 
+// Add event listeners for difficulty buttons
+document.querySelectorAll('.difficulty-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const difficulty = btn.dataset.difficulty;
+    computerAI.setDifficulty(difficulty);
+  });
+});
+
 // Game State
 class GameState {
   constructor() {
@@ -473,7 +481,6 @@ function showWinningAnimation(playerNumber) {
 }
 
 // Initialize game
-gameState.difficulty = 'easy'; // Set initial difficulty
 computerAI.setDifficulty('easy'); // Set AI to easy mode initially
 document.querySelector("#player-1").textContent = `AI (Easy)`;
 console.log("Dice Game Initialized");

@@ -305,6 +305,9 @@ body {
   background-color: #080808;
   z-index: 4;
 }
+
+/* Remove this section since we're using the dynamically created buttons */
+/*
 .difficulty-selector {
   position: absolute;
   top: 16%;
@@ -335,6 +338,7 @@ body {
   border-color: rgba(255, 255, 255, 0.4);
   font-weight: bold;
 }
+*/
 
 @media (max-width: 768px) {
   .container {
@@ -438,55 +442,6 @@ body {
     min-width: 160px;
     padding: 12px 20px;
     font-size: 16px;
-  }
-
-  .difficulty-selector {
-    top: 12%;
-    gap: 5px;
-  }
-  
-  .difficulty-btn {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-}
-
-@media (max-width: 480px) {
-  .left-bottom h1,
-  .right-bottom h1 {
-    font-size: 1rem; /* Further reduce 'Current' text for smaller screens */
-  }
-
-  .left-bottom .dice-score,
-  .right-bottom .dice-score {
-    font-size: 1.2rem; /* Further reduce points for smaller screens */
-  }
-
-  .player-score {
-    font-size: 1.8rem; /* Further reduce total score for smaller screens */
-    margin: 0.8rem;
-  }
-
-  .new-game {
-    top: 1%;
-  }
-
-  .tips {
-    top: 40%;
-  }
-
-  .roll-dice {
-    bottom: 20%;
-  }
-
-  .hold {
-    bottom: 8%;
-  }
-
-  .btn {
-    min-width: 140px;
-    padding: 10px 16px;
-    font-size: 14px;
   }
 }
 
