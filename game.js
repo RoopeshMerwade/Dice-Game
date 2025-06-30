@@ -240,19 +240,19 @@ class MediumAI extends AIStrategy {
     const scoreDiff = playerScore - aiScore;
     
     // Win immediately if possible
-    if (aiScore + currentScore >= 50) return false;
+    if (aiScore + currentScore >= 50) return false; // Hold to win
     
     // Conservative when ahead
-    if (aiScore > playerScore && currentScore >= 10) return false;
+    if (aiScore > playerScore && currentScore >= 12) return false; // Hold if significantly ahead
     
     // More aggressive when behind
-    if (scoreDiff > 10) {
-      return currentScore < 18;
+    if (scoreDiff > 15) { // If player is far ahead, be more aggressive
+      return currentScore < 20;
     }
     
     // Endgame strategy
-    if (playerScore >= 40) {
-      return currentScore < 15;
+    if (playerScore >= 40 && aiScore < 40) { // If player is close to winning, AI needs to take more risks
+      return currentScore < 18;
     }
     
     return currentScore < 12;
@@ -272,22 +272,22 @@ class HardAI extends AIStrategy {
     const pointsToWin = 50 - aiScore;
     
     // Win immediately if possible
-    if (aiScore + currentScore >= 50) return false;
+    if (aiScore + currentScore >= 50) return false; // Hold to win
     
     // Dynamic risk assessment
-    let targetScore = 15;
+    let targetScore = 18; // Default target for Hard AI
     
     // Adjust based on game state
-    if (playerScore >= 45) targetScore = 20; // Very aggressive
-    else if (playerScore >= 35) targetScore = 18; // Aggressive
-    else if (scoreDiff > 15) targetScore = 20; // Catch up mode
-    else if (aiScore > playerScore) targetScore = 12; // Conservative when ahead
+    if (playerScore >= 45) targetScore = 25; // Player is very close, AI must be extremely aggressive
+    else if (playerScore >= 35) targetScore = 22; // Player is close, AI needs to be aggressive
+    else if (scoreDiff > 20) targetScore = 25; // Player is far ahead, AI needs to catch up significantly
+    else if (aiScore > playerScore + 10) targetScore = 10; // AI is significantly ahead, be more conservative
     
     // Cap maximum risk
-    if (currentScore >= 25) return false;
+    if (currentScore >= 30) return false; // Don't risk too much in one turn
     
     // Minimum rolls unless winning
-    if (currentScore <= 3 && pointsToWin > 3) return true;
+    if (currentScore <= 5 && pointsToWin > 5) return true; // Always roll a few times unless winning is imminent
     
     return currentScore < targetScore;
   }
