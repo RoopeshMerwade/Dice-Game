@@ -14,6 +14,106 @@ const PopupX = document.querySelector("#closeButton");
 const showButton = document.querySelector(".tips");
 const overlays = document.querySelector(".overlay");
 
+// Create difficulty buttons dynamically
+const difficultyContainer = document.createElement("div");
+difficultyContainer.className = "difficulty-container";
+difficultyContainer.innerHTML = `
+  <h3>AI Difficulty</h3>
+  <div class="difficulty-buttons">
+    <button class="difficulty-btn active" data-difficulty="easy">Easy</button>
+    <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+    <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+  </div>
+`;
+
+// Add styles for difficulty buttons
+const style = document.createElement("style");
+style.textContent = `
+  .difficulty-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+  }
+
+  .difficulty-container h3 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #333;
+    text-align: center;
+  }
+
+  .difficulty-buttons {
+    display: flex;
+    gap: 5px;
+    flex-direction: column;
+  }
+
+  .difficulty-btn {
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    background: white;
+    color: #333;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    min-width: 70px;
+  }
+
+  .difficulty-btn:hover {
+    background: #f0f0f0;
+    transform: translateY(-1px);
+  }
+
+  .difficulty-btn.active {
+    background: #4CAF50;
+    color: white;
+    border-color: #45a049;
+  }
+
+  .difficulty-btn.easy.active {
+    background: #4CAF50;
+    border-color: #45a049;
+  }
+
+  .difficulty-btn.medium.active {
+    background: #FF9800;
+    border-color: #F57C00;
+  }
+
+  .difficulty-btn.hard.active {
+    background: #f44336;
+    border-color: #d32f2f;
+  }
+
+  @media (max-width: 768px) {
+    .difficulty-container {
+      top: 10px;
+      right: 10px;
+      padding: 10px;
+    }
+    
+    .difficulty-buttons {
+      flex-direction: row;
+    }
+    
+    .difficulty-btn {
+      padding: 6px 8px;
+      font-size: 10px;
+      min-width: 50px;
+    }
+  }
+`;
+
+document.head.appendChild(style);
+document.body.appendChild(difficultyContainer);
+
 // Game State
 class GameState {
   constructor() {
@@ -193,12 +293,25 @@ class ComputerAI {
       medium: new MediumAI(),
       hard: new HardAI()
     };
-    this.currentStrategy = this.strategies.medium;
+    this.currentStrategy = this.strategies.easy; // Start with easy
   }
 
   setDifficulty(difficulty) {
-    this.currentStrategy = this.strategies[difficulty] || this.strategies.medium;
+    this.currentStrategy = this.strategies[difficulty] || this.strategies.easy;
     gameState.difficulty = difficulty;
+    
+    // Update button styles
+    document.querySelectorAll('.difficulty-btn').forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.dataset.difficulty === difficulty) {
+        btn.classList.add('active');
+        btn.classList.add(difficulty);
+      }
+    });
+    
+    // Update player label
+    document.querySelector("#player-1").textContent = `AI (${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)})`;
+    
     console.log(`AI difficulty set to: ${this.currentStrategy.name}`);
   }
 
@@ -283,7 +396,7 @@ NewGameBtn.addEventListener("click", function() {
   
   // Update labels
   document.querySelector("#player-0").textContent = "Player";
-  document.querySelector("#player-1").textContent = `AI (${gameState.difficulty})`;
+  document.querySelector("#player-1").textContent = `AI (${gameState.difficulty.charAt(0).toUpperCase() + gameState.difficulty.slice(1)})`;
   
   console.log("New game started");
 });
@@ -360,6 +473,8 @@ function showWinningAnimation(playerNumber) {
 }
 
 // Initialize game
-document.querySelector("#player-1").textContent = `AI (${gameState.difficulty})`;
+gameState.difficulty = 'easy'; // Set initial difficulty
+computerAI.setDifficulty('easy'); // Set AI to easy mode initially
+document.querySelector("#player-1").textContent = `AI (Easy)`;
 console.log("Dice Game Initialized");
-console.log("Press 1/2/3 to change AI difficulty (Easy/Medium/Hard)");
+console.log("Use difficulty buttons or press 1/2/3 to change AI difficulty (Easy/Medium/Hard)");
