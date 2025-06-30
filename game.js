@@ -1,158 +1,343 @@
-// import confetti from "canvas-confetti";
-
+// Game Elements
 const ActivePlayerBg1 = document.querySelector(".player--0");
 const ActivePlayerBg2 = document.querySelector(".player--1");
-
-let player1Score = document.querySelector("#scoreofplayer0");
-let player2Score = document.querySelector("#scoreofplayer1");
-
-let NewGameBtn = document.querySelector(".newGameButton");
-let DiceRollBtn = document.querySelector(".DiceRoll");
-let HoldDiceBtn = document.querySelector(".HoldDice");
-
-let CurrentScorePlayer1 = document.querySelector("#partialscore--0");
-
-let CurrentScorePlayer2 = document.querySelector("#partialscore--1");
-
-let bgremove = document.querySelector(".left0 ,right1");
-
-let Dice = document.querySelector(".diceImage");
-
+const player1Score = document.querySelector("#scoreofplayer0");
+const player2Score = document.querySelector("#scoreofplayer1");
+const NewGameBtn = document.querySelector(".newGameButton");
+const DiceRollBtn = document.querySelector(".DiceRoll");
+const HoldDiceBtn = document.querySelector(".HoldDice");
+const CurrentScorePlayer1 = document.querySelector("#partialscore--0");
+const CurrentScorePlayer2 = document.querySelector("#partialscore--1");
+const Dice = document.querySelector(".diceImage");
 const RulesSHow = document.querySelector(".rules-box");
-let PopupX = document.querySelector("#closeButton");
-let showButton = document.querySelector(".tips");
+const PopupX = document.querySelector("#closeButton");
+const showButton = document.querySelector(".tips");
 const overlays = document.querySelector(".overlay");
-// --------------------
-const PlayerSwitch = [0, 0];
-let ActivePlayer = 0;
-let CurrentScore = 0;
-let Playing = true;
 
-let isComputerPlayer = true;
-let isComputerTurn = false;
-
-//switch player
-const switchPlayers = function () {
-  CurrentScore = 0;
-  document.getElementById(`partialscore--${ActivePlayer}`).textContent = 0;
-  ActivePlayer = ActivePlayer === 0 ? 1 : 0;
-  ActivePlayerBg1.classList.toggle("active-player");
-  ActivePlayerBg2.classList.toggle("active-player");
-
-  // Add computer player logic
-  if (isComputerPlayer && ActivePlayer === 1 && Playing) {
-    isComputerTurn = true;
-    setTimeout(computerPlay, 1000);
+// Game State
+class GameState {
+  constructor() {
+    this.playerScores = [0, 0];
+    this.activePlayer = 0;
+    this.currentScore = 0;
+    this.isPlaying = true;
+    this.isComputerTurn = false;
+    this.difficulty = 'medium';
+    this.gameStats = {
+      gamesPlayed: 0,
+      playerWins: 0,
+      aiWins: 0,
+      totalRolls: 0,
+      highestSingleTurn: 0
+    };
   }
-};
 
-// Dice Roll Button
-DiceRollBtn.addEventListener("click", function () {
-  if (Playing && !isComputerTurn) {
-    Dice.classList.remove("hidden");
-    let DiceRollValue = Math.floor(Math.random() * 6) + 1;
-    console.log(DiceRollValue);
+  reset() {
+    this.playerScores = [0, 0];
+    this.activePlayer = 0;
+    this.currentScore = 0;
+    this.isPlaying = true;
+    this.isComputerTurn = false;
+  }
 
-    Dice.src = `dice-${DiceRollValue}.png`;
-    if (DiceRollValue !== 1) {
-      CurrentScore = CurrentScore + DiceRollValue;
-      document.getElementById(`partialscore--${ActivePlayer}`).textContent =
-        CurrentScore;
+  switchPlayer() {
+    this.currentScore = 0;
+    document.getElementById(`partialscore--${this.activePlayer}`).textContent = 0;
+    this.activePlayer = this.activePlayer === 0 ? 1 : 0;
+    ActivePlayerBg1.classList.toggle("active-player");
+    ActivePlayerBg2.classList.toggle("active-player");
+
+    if (this.activePlayer === 1 && this.isPlaying) {
+      this.isComputerTurn = true;
+      setTimeout(() => computerAI.play(), 1000);
+    }
+  }
+
+  addScore(points) {
+    this.currentScore += points;
+    this.gameStats.totalRolls++;
+    if (this.currentScore > this.gameStats.highestSingleTurn) {
+      this.gameStats.highestSingleTurn = this.currentScore;
+    }
+    document.getElementById(`partialscore--${this.activePlayer}`).textContent = this.currentScore;
+  }
+
+  holdScore() {
+    this.playerScores[this.activePlayer] += this.currentScore;
+    document.getElementById(`scoreofplayer${this.activePlayer}`).textContent = this.playerScores[this.activePlayer];
+    
+    if (this.playerScores[this.activePlayer] >= 50) {
+      this.endGame();
     } else {
-      switchPlayers();
+      this.switchPlayer();
+    }
+  }
+
+  endGame() {
+    this.isPlaying = false;
+    this.gameStats.gamesPlayed++;
+    
+    if (this.activePlayer === 0) {
+      this.gameStats.playerWins++;
+    } else {
+      this.gameStats.aiWins++;
+    }
+
+    document.querySelector(`.player--${this.activePlayer}`).classList.add("player-winner1");
+    ActivePlayerBg1.classList.remove("active-player");
+    ActivePlayerBg2.classList.remove("active-player");
+    
+    showWinningAnimation(this.activePlayer + 1);
+  }
+}
+
+// AI Strategy Classes
+class AIStrategy {
+  constructor(name, riskLevel) {
+    this.name = name;
+    this.riskLevel = riskLevel;
+  }
+
+  shouldContinueRolling(gameState) {
+    return false; // Override in subclasses
+  }
+}
+
+class EasyAI extends AIStrategy {
+  constructor() {
+    super('Easy', 0.3);
+  }
+
+  shouldContinueRolling(gameState) {
+    const { currentScore, playerScores } = gameState;
+    const aiScore = playerScores[1];
+    
+    // Very conservative - holds early
+    if (currentScore >= 8) return false;
+    if (aiScore + currentScore >= 50) return false;
+    
+    return currentScore < 6;
+  }
+}
+
+class MediumAI extends AIStrategy {
+  constructor() {
+    super('Medium', 0.5);
+  }
+
+  shouldContinueRolling(gameState) {
+    const { currentScore, playerScores } = gameState;
+    const aiScore = playerScores[1];
+    const playerScore = playerScores[0];
+    const scoreDiff = playerScore - aiScore;
+    
+    // Win immediately if possible
+    if (aiScore + currentScore >= 50) return false;
+    
+    // Conservative when ahead
+    if (aiScore > playerScore && currentScore >= 10) return false;
+    
+    // More aggressive when behind
+    if (scoreDiff > 10) {
+      return currentScore < 18;
+    }
+    
+    // Endgame strategy
+    if (playerScore >= 40) {
+      return currentScore < 15;
+    }
+    
+    return currentScore < 12;
+  }
+}
+
+class HardAI extends AIStrategy {
+  constructor() {
+    super('Hard', 0.7);
+  }
+
+  shouldContinueRolling(gameState) {
+    const { currentScore, playerScores } = gameState;
+    const aiScore = playerScores[1];
+    const playerScore = playerScores[0];
+    const scoreDiff = playerScore - aiScore;
+    const pointsToWin = 50 - aiScore;
+    
+    // Win immediately if possible
+    if (aiScore + currentScore >= 50) return false;
+    
+    // Dynamic risk assessment
+    let targetScore = 15;
+    
+    // Adjust based on game state
+    if (playerScore >= 45) targetScore = 20; // Very aggressive
+    else if (playerScore >= 35) targetScore = 18; // Aggressive
+    else if (scoreDiff > 15) targetScore = 20; // Catch up mode
+    else if (aiScore > playerScore) targetScore = 12; // Conservative when ahead
+    
+    // Cap maximum risk
+    if (currentScore >= 25) return false;
+    
+    // Minimum rolls unless winning
+    if (currentScore <= 3 && pointsToWin > 3) return true;
+    
+    return currentScore < targetScore;
+  }
+}
+
+// Computer AI Controller
+class ComputerAI {
+  constructor() {
+    this.strategies = {
+      easy: new EasyAI(),
+      medium: new MediumAI(),
+      hard: new HardAI()
+    };
+    this.currentStrategy = this.strategies.medium;
+  }
+
+  setDifficulty(difficulty) {
+    this.currentStrategy = this.strategies[difficulty] || this.strategies.medium;
+    gameState.difficulty = difficulty;
+    console.log(`AI difficulty set to: ${this.currentStrategy.name}`);
+  }
+
+  play() {
+    if (!gameState.isPlaying || !gameState.isComputerTurn) return;
+    
+    setTimeout(() => this.rollDice(), 1000);
+  }
+
+  rollDice() {
+    if (!gameState.isPlaying) return;
+
+    Dice.classList.remove("hidden");
+    const diceValue = Math.floor(Math.random() * 6) + 1;
+    Dice.src = `dice-${diceValue}.png`;
+
+    if (diceValue !== 1) {
+      gameState.addScore(diceValue);
+      
+      if (this.currentStrategy.shouldContinueRolling(gameState)) {
+        setTimeout(() => this.rollDice(), 1200);
+      } else {
+        setTimeout(() => {
+          gameState.holdScore();
+          gameState.isComputerTurn = false;
+        }, 1500);
+      }
+    } else {
+      setTimeout(() => {
+        gameState.switchPlayer();
+        gameState.isComputerTurn = false;
+      }, 1500);
+    }
+  }
+}
+
+// Initialize game components
+const gameState = new GameState();
+const computerAI = new ComputerAI();
+
+// Event Handlers
+DiceRollBtn.addEventListener("click", function() {
+  if (gameState.isPlaying && !gameState.isComputerTurn) {
+    Dice.classList.remove("hidden");
+    const diceValue = Math.floor(Math.random() * 6) + 1;
+    console.log(`Player rolled: ${diceValue}`);
+
+    Dice.src = `dice-${diceValue}.png`;
+    
+    if (diceValue !== 1) {
+      gameState.addScore(diceValue);
+    } else {
+      gameState.switchPlayer();
     }
   }
 });
 
-NewGameBtn.addEventListener("click", function () {
+HoldDiceBtn.addEventListener("click", function() {
+  if (gameState.isPlaying && !gameState.isComputerTurn) {
+    gameState.holdScore();
+  }
+});
+
+NewGameBtn.addEventListener("click", function() {
+  // Reset UI
   player1Score.textContent = 0;
   player2Score.textContent = 0;
-  Dice.classList.add("hidden");
   CurrentScorePlayer1.textContent = 0;
   CurrentScorePlayer2.textContent = 0;
-
-  document
-    .querySelector(`.player--${ActivePlayer}`)
-    .classList.remove("player-winner1");
-
-  PlayerSwitch[0] = 0;
-  PlayerSwitch[1] = 0;
-  ActivePlayer = 0;
-  CurrentScore = 0;
-
-  ActivePlayerBg2.classList.remove("active-player");
+  Dice.classList.add("hidden");
+  
+  // Remove winner styling
+  document.querySelector(`.player--${gameState.activePlayer}`)?.classList.remove("player-winner1");
+  
+  // Reset game state
+  gameState.reset();
+  
+  // Reset player styling
   ActivePlayerBg1.classList.remove("active-player");
+  ActivePlayerBg2.classList.remove("active-player");
   ActivePlayerBg1.classList.add("active-player");
-  isComputerTurn = false;
-  Playing = true;
-
-  // Update player labels
+  
+  // Update labels
   document.querySelector("#player-0").textContent = "Player";
-  document.querySelector("#player-1").textContent = "AI";
+  document.querySelector("#player-1").textContent = `AI (${gameState.difficulty})`;
+  
+  console.log("New game started");
 });
 
-HoldDiceBtn.addEventListener("click", function () {
-  if (Playing && !isComputerTurn) {
-    PlayerSwitch[ActivePlayer] += CurrentScore;
-    document.getElementById(`scoreofplayer${ActivePlayer}`).textContent =
-      PlayerSwitch[ActivePlayer];
-    if (PlayerSwitch[ActivePlayer] >= 50) {
-      Playing = false;
-      // document
-      //   .querySelector(`.left${ActivePlayer}, .right${ActivePlayer}`)
-      //   .classList.add("player-winner1");
-
-      document
-        .querySelector(`.player--${ActivePlayer}`)
-        .classList.add("player-winner1");
-
-      // document.querySelector(`.player--${ActivePlayer}`).style.backgroundColor =
-      //   "#2f2f2f";
-      ActivePlayerBg1.classList.remove("active-player");
-      ActivePlayerBg2.classList.remove("active-player");
-
-      showWinningAnimation(ActivePlayer + 1);
-    } else {
-      switchPlayers();
-    }
-  }
-});
-
-showButton.addEventListener("click", function () {
+// Rules popup handlers
+showButton.addEventListener("click", function() {
   RulesSHow.classList.remove("hide");
   overlays.style.display = "block";
 });
 
-PopupX.addEventListener("click", function () {
+PopupX.addEventListener("click", function() {
   RulesSHow.classList.add("hide");
   overlays.style.display = "";
 });
 
-document.addEventListener("keydown", function (e) {
-  console.log(e.key);
+document.addEventListener("keydown", function(e) {
   if (e.key === "Escape") {
     overlays.style.display = "";
     RulesSHow.classList.add("hide");
   }
 });
 
-function closeRulesBox() {
+overlays.addEventListener("click", function() {
   overlays.style.display = "";
   RulesSHow.classList.add("hide");
-}
-overlays.addEventListener("click", closeRulesBox);
+});
+
+// Difficulty selection (keyboard shortcuts)
+document.addEventListener("keydown", function(e) {
+  if (e.key === "1") computerAI.setDifficulty("easy");
+  if (e.key === "2") computerAI.setDifficulty("medium");
+  if (e.key === "3") computerAI.setDifficulty("hard");
+});
 
 function showWinningAnimation(playerNumber) {
-  // Create overlay and popup
   const overlay = document.createElement("div");
   overlay.className = "winner-overlay";
 
   const popup = document.createElement("div");
   popup.className = "winner-popup";
+  
+  const stats = gameState.gameStats;
+  const winRate = stats.gamesPlayed > 0 ? ((stats.playerWins / stats.gamesPlayed) * 100).toFixed(1) : 0;
+  
   if (playerNumber === 1) {
-    popup.innerHTML = `<h2>Player 1 Wins! 🎉</h2>`;
+    popup.innerHTML = `
+      <h2>Player Wins! 🎉</h2>
+      <p>Win Rate: ${winRate}% (${stats.playerWins}/${stats.gamesPlayed})</p>
+    `;
   } else {
-    popup.innerHTML = `<h2>AI Wins! 🤖🎉</h2>`;
+    popup.innerHTML = `
+      <h2>AI Wins! 🤖</h2>
+      <p>AI Win Rate: ${(100 - winRate).toFixed(1)}% (${stats.aiWins}/${stats.gamesPlayed})</p>
+    `;
   }
 
   document.body.appendChild(overlay);
@@ -166,113 +351,15 @@ function showWinningAnimation(playerNumber) {
     colors: ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff"],
   });
 
-  // Automatically reset game after 5 seconds
+  // Auto-reset after 4 seconds
   setTimeout(() => {
-    // Remove popup and overlay
     overlay.remove();
     popup.remove();
-
-    // Reset game (reuse existing NewGameBtn click logic)
     NewGameBtn.click();
-  }, 5000);
+  }, 4000);
 }
 
-// Add computer player function
-function computerPlay() {
-  if (!Playing || !isComputerTurn) return;
-
-  function calculateRiskFactor() {
-    const computerScore = PlayerSwitch[1];
-    const playerScore = PlayerSwitch[0];
-    const scoreDiff = playerScore - computerScore;
-    const pointsToWin = 50 - computerScore;
-
-    // Dynamic strategy based on game state
-    if (playerScore >= 45) return 30; // Very aggressive if player is about to win
-    if (pointsToWin <= 15) return 10; // Conservative when close to winning
-    if (scoreDiff > 15) return 25; // Aggressive when falling behind
-    if (computerScore > playerScore) {
-      // Adaptive when leading
-      return Math.min(20, pointsToWin); // Don't overreach
-    }
-    return 20; // Default balanced approach
-  }
-
-  function shouldContinueRolling() {
-    const computerScore = PlayerSwitch[1];
-    const playerScore = PlayerSwitch[0];
-    const winningMove = computerScore + CurrentScore >= 50;
-    const scoreDiff = playerScore - computerScore;
-
-    // Force holding in these cases
-    if (winningMove) return false; // Hold if we can win
-    if (CurrentScore >= 20) return false; // Cap at 20 points per turn
-    if (computerScore + CurrentScore >= 45) return false; // Hold when close to winning
-
-    // Risk assessment - more conservative
-    if (CurrentScore <= 5) return true; // Always roll at least twice
-
-    // Standard risk cases
-    const baseThreshold = 12; // Base target score
-    const adjustedTarget = baseThreshold + (scoreDiff > 10 ? 4 : 0); // More aggressive if behind
-
-    // Conservative when ahead, aggressive when behind
-    if (computerScore > playerScore && CurrentScore >= 10) return false;
-    if (scoreDiff > 15 && CurrentScore < 15) return true;
-
-    return CurrentScore < adjustedTarget;
-  }
-
-  function rollDice() {
-    if (!Playing) return;
-
-    Dice.classList.remove("hidden");
-    const DiceRollValue = Math.floor(Math.random() * 6) + 1;
-    Dice.src = `dice-${DiceRollValue}.png`;
-
-    if (DiceRollValue !== 1) {
-      CurrentScore += DiceRollValue;
-      document.getElementById(`partialscore--${ActivePlayer}`).textContent =
-        CurrentScore;
-
-      // Decision making
-      if (shouldContinueRolling()) {
-        setTimeout(rollDice, 800); // Faster rolls for better gameplay
-      } else {
-        setTimeout(() => {
-          // Hold points
-          PlayerSwitch[ActivePlayer] += CurrentScore;
-          document.getElementById(`scoreofplayer${ActivePlayer}`).textContent =
-            PlayerSwitch[ActivePlayer];
-
-          if (PlayerSwitch[ActivePlayer] >= 50) {
-            Playing = false;
-            document
-              .querySelector(`.player--${ActivePlayer}`)
-              .classList.add("player-winner1");
-            ActivePlayerBg1.classList.remove("active-player");
-            ActivePlayerBg2.classList.remove("active-player");
-            showWinningAnimation(ActivePlayer + 1);
-          } else {
-            switchPlayers();
-          }
-          isComputerTurn = false;
-        }, 1000);
-      }
-    } else {
-      setTimeout(() => {
-        switchPlayers();
-        isComputerTurn = false;
-      }, 1000);
-    }
-  }
-
-  setTimeout(rollDice, 1000);
-}
-
-// In your existing game logic where you determine the winner:
-if (PlayerSwitch[ActivePlayer] >= 50) {
-  Playing = false;
-  showWinningAnimation(ActivePlayer + 1);
-  // ... rest of your winning logic
-}
+// Initialize game
+document.querySelector("#player-1").textContent = `AI (${gameState.difficulty})`;
+console.log("Dice Game Initialized");
+console.log("Press 1/2/3 to change AI difficulty (Easy/Medium/Hard)");

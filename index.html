@@ -11,7 +11,7 @@
 
 <body>
     <div class="container">
-        <div class="left0 player--0 active-player  ">
+        <div class="left0 player--0 active-player">
             <div class="left-top">
                 <h1 class="Player1" id="player-0">Player 1</h1>
                 <p class="player-score" id="scoreofplayer0">0</p>
@@ -21,15 +21,26 @@
                 <p class="dice-score" id="partialscore--0">0</p>
             </div>
         </div>
+
         <div class="new-game">
             <button class="newGameButton btn">🥶 New Game</button>
         </div>
+
+        <div class="difficulty-selector">
+            <button class="btn difficulty-btn" onclick="computerAI.setDifficulty('easy')">Easy</button>
+            <button class="btn difficulty-btn active-difficulty" onclick="computerAI.setDifficulty('medium')">Medium
+            </button>
+            <button class="btn difficulty-btn" onclick="computerAI.setDifficulty('hard')">Hard</button>
+        </div>
+
         <div class="dice">
             <img src="dice-1.png" class="diceImage hidden" alt="Dice">
         </div>
+
         <div class="tips">
-            <button class="btn rules"> Rules 👀</button>
+            <button class="btn rules">Rules 👀</button>
         </div>
+
         <div class="overlay hidden"></div>
         <div class="rules-box hide">
             <div class="popup">
@@ -37,22 +48,24 @@
                 <button id="closeButton">&#10006;</button>
             </div>
             <p class="box-rules">
-                1. <strong>Objective:</strong> Achieve a target score of ( 50 points) before your opponent.<br>
-                2. <strong>Gameplay:</strong> Roll two dice, accumulating points on each roll.<br>
-                3. <strong>Risk of Rolling 1:</strong> Rolling a 1 on any die ends your turn, forfeiting accumulated
-                points.<br>
-                4. <strong>Banking Points:</strong> Choose when to "hold" or "bank" your points, adding them to your
-                total.<br>
-                5. <strong>Winning:</strong> Be the first to reach or exceed the target score and win the game.
+                1. <strong>Objective:</strong> Achieve a target score of 50 points before your opponent.<br>
+                2. <strong>Gameplay:</strong> Roll the dice, accumulating points on each roll.<br>
+                3. <strong>Risk of Rolling 1:</strong> Rolling a 1 ends your turn, forfeiting accumulated points.<br>
+                4. <strong>Banking Points:</strong> Choose when to "hold" your points, adding them to your total.<br>
+                5. <strong>Winning:</strong> Be the first to reach or exceed 50 points and win the game.<br>
+                6. <strong>AI Difficulty:</strong> Use keyboard keys 1/2/3 or buttons to change AI difficulty.
             </p>
         </div>
+
         <div class="roll-dice">
             <button class="btn DiceRoll">Roll Dice 🎲</button>
         </div>
+
         <div class="hold">
-            <button class="btn HoldDice"> Hold🎃</button>
+            <button class="btn HoldDice">Hold 🎃</button>
         </div>
-        <div class="right1 player--1 ">
+
+        <div class="right1 player--1">
             <div class="right-top">
                 <h1 class="Player2" id="player-1">AI 💀</h1>
                 <p class="player-score" id="scoreofplayer1">0</p>
@@ -61,12 +74,10 @@
                 <h1>Current</h1>
                 <p class="dice-score" id="partialscore--1">0</p>
             </div>
-
         </div>
-
     </div>
 
+    <script src="game.js" type="module"></script>
 </body>
-<script src="game.js" type="module"></script>
 
 </html>
