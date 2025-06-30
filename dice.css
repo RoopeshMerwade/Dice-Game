@@ -12,28 +12,31 @@ html {
   --c3: #f093fb;
 
   --_g: var(--c3) 0 120deg, #0000 0;
-  background: conic-gradient(from -60deg at 50% calc(100% / 3), var(--_g)),
-    conic-gradient(from 120deg at 50% calc(200% / 3), var(--_g)),
-    conic-gradient(
-      from 60deg at calc(200% / 3),
-      var(--c3) 60deg,
-      var
-      #0000 0
-    ),
-    conic-gradient(from 180deg at calc(100% / 3), var(--c1) 60deg, var(--_g)),
-    linear-gradient(
-      90deg,
-      var(--c1) calc(100% / 6),
-      var(--c2) 0 50%,
-      var(--c1) 0 calc(500% / 6),
-      var(--c2) 0
-    );
-  background-size: calc(1.732 * var(--s)) var(--s);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  min-height: 100vh;
+  /* Add a subtle animated gradient overlay */
+  background-size: 200% 200%;
+  animation: gradientMove 8s ease-in-out infinite;
+}
+
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 body {
   overflow: hidden;
   position: relative;
+  /* Add a glassy overlay for depth */
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(2px);
 }
 
 .container {
@@ -41,74 +44,89 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #9bc1e7;
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
   margin: auto;
   height: 98vh;
-  border-radius: 15px;
+  border-radius: 25px;
   position: relative;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+  transition: box-shadow 0.3s;
 }
-.left0 {
-  width: 50%;
-  /* background-image: linear-gradient(to top right, #009245, #fcee21); */
-  height: 100%;
-  border-top-left-radius: 15px;
-  border-bottom-left-radius: 15px;
-  display: flex;
-  flex-direction: column;
-  z-index: 2;
-  justify-content: space-around;
-}
+
+.left0,
 .right1 {
   width: 50%;
   height: 100%;
-  /* background-image: linear-gradient(to top right, #ff512f, #dd2476); */
-  border-top-right-radius: 15px;
-  border-bottom-right-radius: 15px;
+  border-radius: 25px;
   display: flex;
   flex-direction: column;
   z-index: 2;
   justify-content: space-around;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 24px 0 rgba(52, 152, 219, 0.08);
+  transition: background 0.3s;
+}
+
+.left0 {
+  border-top-left-radius: 25px;
+  border-bottom-left-radius: 25px;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.right1 {
+  border-top-right-radius: 25px;
+  border-bottom-right-radius: 25px;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .left-top h1,
 .right-top h1 {
   font-family: "Poppins", sans-serif;
   font-weight: bold;
-  color: white;
-  font-size: 3rem;
+  color: #fff;
+  font-size: 3.2rem;
+  letter-spacing: 1.5px;
+  text-shadow: 0 4px 24px rgba(52, 152, 219, 0.18);
+  margin-bottom: 0.5rem;
+  transition: color 0.3s;
 }
 
 .player-score {
-  font-size: 3rem;
+  font-size: 3.5rem;
   font-weight: bold;
   margin: 2rem;
-  color: white;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(41, 128, 185, 0.18);
+  letter-spacing: 2px;
+  transition: color 0.3s;
 }
+
 .left-bottom,
 .right-bottom {
-  width: 45%;
-  background: linear-gradient(
-    145deg,
-    rgba(52, 152, 219, 0.9),
-    rgba(41, 128, 185, 0.75)
-  );
-  border-radius: 10px;
+  width: 60%;
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 18px;
   margin: auto;
   text-align: center;
   font-family: "Vollkorn", serif;
-  color: white;
-  padding: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 18px 10px 14px 10px;
+  box-shadow: 0 8px 32px 0 rgba(52, 152, 219, 0.13);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(6px);
+  transition: background 0.3s, box-shadow 0.3s;
 }
 
 .left-bottom .dice-score,
 .right-bottom .dice-score {
-  font-size: 35px;
+  font-size: 2.5rem;
   font-family: "Poppins", sans-serif;
   font-weight: bold;
-  color: white;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(41, 128, 185, 0.18);
+  margin-top: 0.5rem;
 }
 
 .left-top,
@@ -129,61 +147,85 @@ body {
 
 .new-game {
   position: absolute;
-  top: 8%;
+  top: 6%;
   z-index: 5;
-  color: black;
-  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+  color: #fff;
+  font-family: "Poppins", sans-serif;
   outline: 0;
   border: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 50rem;
+  box-shadow: 0 2px 8px rgba(41, 128, 185, 0.12);
+  padding: 10px 32px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  transition: background 0.3s, color 0.3s;
 }
 
 .btn {
-  padding: 12px 28px;
+  padding: 14px 34px;
   border-radius: 50rem;
   border: 2px solid rgba(255, 255, 255, 0.3);
   outline: 0;
-  font-size: 22px;
-  font-weight: 600;
+  font-size: 1.4rem;
+  font-weight: 700;
   cursor: pointer;
   background: linear-gradient(
-    145deg,
-    rgba(127, 180, 215, 0.9),
-    rgba(99, 160, 210, 0.8)
+    135deg,
+    rgba(127, 180, 215, 0.85),
+    rgba(99, 160, 210, 0.85)
   );
-  color: white;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(41, 128, 185, 0.18);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 2, 0.3, 1);
+  margin: 0 8px;
+  border: none;
 }
 
-.btn:hover {
-  transform: translateY(-2px);
+.btn:hover,
+.new-game:hover {
+  transform: translateY(-3px) scale(1.04);
   background: linear-gradient(
-    145deg,
-    rgba(41, 128, 185, 0.9),
-    rgba(52, 152, 219, 0.8)
+    135deg,
+    rgba(41, 128, 185, 0.95),
+    rgba(52, 152, 219, 0.95)
   );
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  color: #f093fb;
+  box-shadow: 0 8px 32px rgba(41, 128, 185, 0.18);
   border-color: rgba(255, 255, 255, 0.5);
 }
 
-.btn:active {
-  transform: translateY(1px);
+.btn:active,
+.new-game:active {
+  transform: translateY(1px) scale(0.98);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .dice {
   position: absolute;
   left: 44.5%;
-  top: 25%; /* Changed from 30% */
+  top: 23%;
   z-index: 5;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px 0 rgba(52, 152, 219, 0.13);
+  padding: 10px 18px;
+  transition: background 0.3s;
 }
+
 .dice .diceImage {
-  width: 35%;
+  width: 90px;
+  max-width: 100%;
   border-radius: 15px;
-  box-shadow: 10px 10px 5px #493e3e;
-  /* z-index: 2; */
+  box-shadow: 0 4px 18px #493e3e33;
+  background: rgba(255, 255, 255, 0.12);
+  transition: box-shadow 0.3s;
 }
+
 .roll-dice {
   position: absolute;
   bottom: 27%;
@@ -191,39 +233,7 @@ body {
   left: 50%;
   transform: translateX(-50%);
 }
-.hidden {
-  display: none;
-}
-.tips {
-  position: absolute;
-  top: 50%; /* Changed from 40% */
-  z-index: 5;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-bottom: 20px; /* Add margin for separation */
-}
-.rules-box {
-  position: absolute;
-  width: 60%;
-  background-color: white;
-  z-index: 7;
-  border-radius: 10px;
-  top: 35%;
-}
-.hide {
-  display: none;
-}
-.box-rules {
-  font-size: 20px;
-  text-align: center;
-  padding: 15px 20px;
-  line-height: 27px;
-  margin: 0;
-}
-.DiceRoll {
-  color: black;
-  font-size: 25px;
-}
+
 .hold {
   position: absolute;
   bottom: 15%;
@@ -231,17 +241,19 @@ body {
   left: 50%;
   transform: translateX(-50%);
 }
+
 .active-player {
   background: linear-gradient(
-    145deg,
-    rgba(1, 75, 144, 0.6),
-    rgba(0, 102, 255, 0.4)
+    135deg,
+    rgba(1, 75, 144, 0.7),
+    rgba(0, 102, 255, 0.5)
   );
-  border-radius: 15px;
-  box-shadow: 0 0 20px rgba(0, 102, 255, 0.2);
-  transition: all 0.3s ease;
+  border-radius: 25px;
+  box-shadow: 0 0 32px rgba(0, 102, 255, 0.18);
+  transition: all 0.3s;
   position: relative;
   animation: activeGlow 2s ease-in-out infinite;
+  border: 2px solid #f093fb;
 }
 
 .active-player::before {
@@ -251,22 +263,23 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  border-radius: 15px;
-  background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), transparent);
+  border-radius: 25px;
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.08), transparent);
   z-index: -1;
 }
 
 .active-player h1 {
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.18);
+  color: #f093fb;
 }
 
 @keyframes activeGlow {
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(0, 102, 255, 0.2);
+    box-shadow: 0 0 32px rgba(0, 102, 255, 0.18);
   }
   50% {
-    box-shadow: 0 0 30px rgba(0, 102, 255, 0.4);
+    box-shadow: 0 0 48px rgba(0, 102, 255, 0.28);
   }
 }
 
@@ -275,177 +288,163 @@ body {
   position: absolute;
   right: 2%;
   border: none;
-  font-size: 20px;
+  font-size: 1.5rem;
   background: none;
   top: 9px;
+  color: #764ba2;
+  transition: color 0.2s;
 }
+
+#closeButton:hover {
+  color: #f093fb;
+}
+
 .overlay {
   position: absolute;
   height: 100%;
   width: 100%;
   top: 0;
   left: 0;
-  background-color: rgba(99, 160, 210, 0.5);
-  backdrop-filter: blur(3px);
+  background: rgba(99, 160, 210, 0.18);
+  backdrop-filter: blur(6px);
   z-index: 6;
-  border-radius: 15px;
+  border-radius: 25px;
 }
 
-.popup {
-  display: flex;
-  justify-content: space-between;
-  margin: auto;
-  width: 96%;
-  height: 45px;
-}
-.active-player {
-  font-weight: 600;
-}
-.player-winner1 {
-  background-color: #080808;
-  z-index: 4;
-}
-
-/* Remove this section since we're using the dynamically created buttons */
-/*
-.difficulty-selector {
+.tips {
   position: absolute;
-  top: 16%;
+  top: 50%;
+  z-index: 5;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 5;
-  display: flex;
-  gap: 10px;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  padding: 10px 24px;
+  color: #fff;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px rgba(41, 128, 185, 0.12);
+  letter-spacing: 1px;
 }
 
-.difficulty-btn {
-  padding: 8px 16px;
-  font-size: 14px;
-  border-radius: 20px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
-  transition: all 0.3s ease;
+.rules-box {
+  position: absolute;
+  width: 60%;
+  background: rgba(255, 255, 255, 0.95);
+  z-index: 7;
+  border-radius: 18px;
+  top: 35%;
+  box-shadow: 0 8px 32px 0 rgba(52, 152, 219, 0.18);
+  border: 2px solid #f093fb;
+  padding: 1.5rem 2rem;
+  transition: background 0.3s;
 }
 
-.difficulty-btn:hover {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
-  transform: translateY(-1px);
+.box-rules {
+  font-size: 1.3rem;
+  text-align: center;
+  padding: 15px 20px;
+  line-height: 1.7;
+  margin: 0;
+  color: #764ba2;
+  font-weight: 500;
 }
 
-.active-difficulty {
-  background: linear-gradient(145deg, rgba(41, 128, 185, 0.8), rgba(52, 152, 219, 0.6)) !important;
-  border-color: rgba(255, 255, 255, 0.4);
-  font-weight: bold;
+.winner-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(
+    135deg,
+    rgba(41, 128, 185, 0.98),
+    rgba(52, 152, 219, 0.98)
+  );
+  padding: 2.5rem 5rem;
+  border-radius: 25px;
+  text-align: center;
+  z-index: 1000;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
+  animation: popIn 0.5s cubic-bezier(0.26, 0.53, 0.74, 1.48);
+  border: 2px solid #f093fb;
 }
-*/
+
+.winner-popup h2 {
+  color: #fff;
+  font-size: 2.8rem;
+  margin: 0;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.18);
+  letter-spacing: 1.5px;
+}
+
+.winner-popup p {
+  color: #fff;
+  font-size: 1.3rem;
+  margin-top: 1.2rem;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.13);
+}
+
+.winner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.32);
+  z-index: 999;
+}
 
 @media (max-width: 768px) {
   .container {
     width: 100%;
     align-items: center;
-  }
-
-  .dice {
-    left: 40%;
-    top: 20%;
-  }
-
-  .right-bottom h1,
-  .left-bottom h1 {
-    font-size: 26px;
-  }
-  .rules-box {
-    top: 25%;
-    width: 75%;
+    border-radius: 0;
   }
   .left0,
   .right1 {
-    width: 100%;
     border-radius: 0;
   }
-
-  .left0 h1,
-  .right1 h1,
-  .player-score,
-  .dice-score {
+  .dice {
+    left: 40%;
+    top: 18%;
+    padding: 6px 10px;
+  }
+  .left-bottom,
+  .right-bottom {
+    width: 90%;
+    border-radius: 12px;
+    padding: 10px 4px;
+  }
+  .rules-box {
+    top: 25%;
+    width: 90%;
+    border-radius: 12px;
+    padding: 1rem 0.5rem;
+  }
+  .winner-popup {
+    padding: 1.2rem 1.2rem;
+    border-radius: 12px;
+  }
+  .btn,
+  .new-game {
+    padding: 10px 18px;
+    font-size: 1rem;
+    border-radius: 50rem;
+  }
+  .player-score {
+    font-size: 2rem;
+    margin: 1rem;
+  }
+  .left-top h1,
+  .right-top h1 {
     font-size: 2rem;
   }
   .left-bottom .dice-score,
   .right-bottom .dice-score {
-    font-size: 25px;
-    font-family: "Poppins", sans-serif;
-    font-weight: bold;
-  }
-  .left-bottom h1,
-  .right-bottom h1 {
-    font-size: 25px;
-  }
-  .btn {
-    padding: 10px 20px;
-    font-size: 18px;
-  }
-  .tips {
-    top: 45%;
-  }
-
-  .roll-dice {
-    bottom: 25%;
-  }
-
-  .hold {
-    bottom: 10%;
-  }
-
-  .left-bottom h1,
-  .right-bottom h1 {
-    font-size: 1.2rem; /* Reduce 'Current' text size */
-    margin-bottom: 5px;
-  }
-
-  .left-bottom .dice-score,
-  .right-bottom .dice-score {
-    font-size: 1.5rem; /* Reduce points size */
-  }
-
-  .player-score {
-    font-size: 2rem; /* Reduce total score size */
-    margin: 1rem;
-  }
-
-  .new-game {
-    top: 2%;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  .tips {
-    top: 42%;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-bottom: 0;
-  }
-
-  .roll-dice {
-    bottom: 22%;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  .hold {
-    bottom: 12%;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  .btn {
-    min-width: 160px;
-    padding: 12px 20px;
-    font-size: 16px;
+    font-size: 1.2rem;
   }
 }
 
-/* For very small devices */
 @media (max-width: 320px) {
   .left-bottom h1,
   .right-bottom h1 {
@@ -483,6 +482,7 @@ body {
     margin: 8px 0;
     touch-action: manipulation;
   }
+}
 }
 
 .winner-popup {
