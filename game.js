@@ -11,7 +11,7 @@ const CurrentScorePlayer2 = document.querySelector("#partialscore--1");
 const Dice = document.querySelector(".diceImage");
 const RulesSHow = document.querySelector(".rules-box");
 const PopupX = document.querySelector("#closeButton");
-const showButton = document.querySelector(".tips");
+const showButton = document.querySelector(".rules"); // Fixed selector
 const overlays = document.querySelector(".overlay");
 
 // Create difficulty buttons dynamically
@@ -412,23 +412,23 @@ NewGameBtn.addEventListener("click", function() {
 // Rules popup handlers
 showButton.addEventListener("click", function() {
   RulesSHow.classList.remove("hide");
-  overlays.style.display = "block";
+  overlays.classList.remove("hidden"); // Fixed class name
 });
 
 PopupX.addEventListener("click", function() {
   RulesSHow.classList.add("hide");
-  overlays.style.display = "";
+  overlays.classList.add("hidden"); // Fixed class name
 });
 
 document.addEventListener("keydown", function(e) {
   if (e.key === "Escape") {
-    overlays.style.display = "";
+    overlays.classList.add("hidden"); // Fixed class name
     RulesSHow.classList.add("hide");
   }
 });
 
 overlays.addEventListener("click", function() {
-  overlays.style.display = "";
+  overlays.classList.add("hidden"); // Fixed class name
   RulesSHow.classList.add("hide");
 });
 
@@ -451,12 +451,14 @@ function showWinningAnimation(playerNumber) {
   
   if (playerNumber === 1) {
     popup.innerHTML = `
-      <h2>Player Wins! 🎉</h2>
+      <h2>🎉 Player Wins!</h2>
+      <p>Congratulations! You defeated the AI!</p>
       <p>Win Rate: ${winRate}% (${stats.playerWins}/${stats.gamesPlayed})</p>
     `;
   } else {
     popup.innerHTML = `
-      <h2>AI Wins! 🤖</h2>
+      <h2>🤖 AI Wins!</h2>
+      <p>Better luck next time!</p>
       <p>AI Win Rate: ${(100 - winRate).toFixed(1)}% (${stats.aiWins}/${stats.gamesPlayed})</p>
     `;
   }
