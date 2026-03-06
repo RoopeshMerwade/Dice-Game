@@ -14,6 +14,11 @@ const PopupX = document.querySelector("#closeButton");
 const showButton = document.querySelector(".rules"); // Fixed selector
 const overlays = document.querySelector(".overlay");
 
+// Indexed arrays for O(1) player element access — avoids repeated getElementById in hot paths
+const playerScoreEls = [player1Score, player2Score];
+const currentScoreEls = [CurrentScorePlayer1, CurrentScorePlayer2];
+const playerBgEls = [ActivePlayerBg1, ActivePlayerBg2];
+
 // Create difficulty buttons dynamically
 const difficultyContainer = document.createElement("div");
 difficultyContainer.className = "difficulty-container";
@@ -26,96 +31,13 @@ difficultyContainer.innerHTML = `
   </div>
 `;
 
-// Add styles for difficulty buttons
-const style = document.createElement("style");
-style.textContent = `
-  .difficulty-container {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    z-index: 100;
-  }
-
-  .difficulty-container h3 {
-    margin: 0 0 10px 0;
-    font-size: 14px;
-    color: #333;
-    text-align: center;
-  }
-
-  .difficulty-buttons {
-    display: flex;
-    gap: 5px;
-    flex-direction: column;
-  }
-
-  .difficulty-btn {
-    padding: 8px 12px;
-    border: 2px solid #ddd;
-    background: white;
-    color: #333;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: bold;
-    transition: all 0.2s ease;
-    min-width: 70px;
-  }
-
-  .difficulty-btn:hover {
-    background: #f0f0f0;
-    transform: translateY(-1px);
-  }
-
-  .difficulty-btn.active {
-    background: #4CAF50;
-    color: white;
-    border-color: #45a049;
-  }
-
-  .difficulty-btn.easy.active {
-    background: #4CAF50;
-    border-color: #45a049;
-  }
-
-  .difficulty-btn.medium.active {
-    background: #FF9800;
-    border-color: #F57C00;
-  }
-
-  .difficulty-btn.hard.active {
-    background: #f44336;
-    border-color: #d32f2f;
-  }
-
-  @media (max-width: 768px) {
-    .difficulty-container {
-      top: 10px;
-      right: 10px;
-      padding: 10px;
-    }
-    
-    .difficulty-buttons {
-      flex-direction: row;
-    }
-    
-    .difficulty-btn {
-      padding: 6px 8px;
-      font-size: 10px;
-      min-width: 50px;
-    }
-  }
-`;
-
-document.head.appendChild(style);
 document.body.appendChild(difficultyContainer);
 
+// Cache difficulty buttons once to avoid repeated DOM queries in setDifficulty
+const difficultyBtns = document.querySelectorAll('.difficulty-btn');
+
 // Add event listeners for difficulty buttons
-document.querySelectorAll('.difficulty-btn').forEach(btn => {
+difficultyBtns.forEach(btn => {
   btn.addEventListener('click', () => {
     const difficulty = btn.dataset.difficulty;
     computerAI.setDifficulty(difficulty);
@@ -150,7 +72,7 @@ class GameState {
 
   switchPlayer() {
     this.currentScore = 0;
-    document.getElementById(`partialscore--${this.activePlayer}`).textContent = 0;
+    currentScoreEls[this.activePlayer].textContent = 0;
     this.activePlayer = this.activePlayer === 0 ? 1 : 0;
     ActivePlayerBg1.classList.toggle("active-player");
     ActivePlayerBg2.classList.toggle("active-player");
@@ -167,12 +89,12 @@ class GameState {
     if (this.currentScore > this.gameStats.highestSingleTurn) {
       this.gameStats.highestSingleTurn = this.currentScore;
     }
-    document.getElementById(`partialscore--${this.activePlayer}`).textContent = this.currentScore;
+    currentScoreEls[this.activePlayer].textContent = this.currentScore;
   }
 
   holdScore() {
     this.playerScores[this.activePlayer] += this.currentScore;
-    document.getElementById(`scoreofplayer${this.activePlayer}`).textContent = this.playerScores[this.activePlayer];
+    playerScoreEls[this.activePlayer].textContent = this.playerScores[this.activePlayer];
     
     if (this.playerScores[this.activePlayer] >= 50) {
       this.endGame();
@@ -191,7 +113,7 @@ class GameState {
       this.gameStats.aiWins++;
     }
 
-    document.querySelector(`.player--${this.activePlayer}`).classList.add("player-winner1");
+    playerBgEls[this.activePlayer].classList.add("player-winner1");
     ActivePlayerBg1.classList.remove("active-player");
     ActivePlayerBg2.classList.remove("active-player");
     
@@ -309,7 +231,7 @@ class ComputerAI {
     gameState.difficulty = difficulty;
     
     // Update button styles
-    document.querySelectorAll('.difficulty-btn').forEach(btn => {
+    difficultyBtns.forEach(btn => {
       btn.classList.remove('active');
       if (btn.dataset.difficulty === difficulty) {
         btn.classList.add('active');
@@ -392,7 +314,7 @@ NewGameBtn.addEventListener("click", function() {
   Dice.classList.add("hidden");
   
   // Remove winner styling
-  document.querySelector(`.player--${gameState.activePlayer}`)?.classList.remove("player-winner1");
+  playerBgEls[gameState.activePlayer]?.classList.remove("player-winner1");
   
   // Reset game state
   gameState.reset();
@@ -420,23 +342,23 @@ PopupX.addEventListener("click", function() {
   overlays.classList.add("hidden"); // Fixed class name
 });
 
-document.addEventListener("keydown", function(e) {
-  if (e.key === "Escape") {
-    overlays.classList.add("hidden"); // Fixed class name
-    RulesSHow.classList.add("hide");
-  }
-});
-
 overlays.addEventListener("click", function() {
   overlays.classList.add("hidden"); // Fixed class name
   RulesSHow.classList.add("hide");
 });
 
-// Difficulty selection (keyboard shortcuts)
+// Keyboard shortcuts — single listener handles both rules popup and difficulty selection
 document.addEventListener("keydown", function(e) {
-  if (e.key === "1") computerAI.setDifficulty("easy");
-  if (e.key === "2") computerAI.setDifficulty("medium");
-  if (e.key === "3") computerAI.setDifficulty("hard");
+  if (e.key === "Escape") {
+    overlays.classList.add("hidden"); // Fixed class name
+    RulesSHow.classList.add("hide");
+  } else if (e.key === "1") {
+    computerAI.setDifficulty("easy");
+  } else if (e.key === "2") {
+    computerAI.setDifficulty("medium");
+  } else if (e.key === "3") {
+    computerAI.setDifficulty("hard");
+  }
 });
 
 function showWinningAnimation(playerNumber) {
